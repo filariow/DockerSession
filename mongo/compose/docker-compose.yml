@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  mdb:
+    volumes:
+      - mdb-vol:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - mdb-net
+    image: "mongo:latest"
+  mdb-exp:
+    networks:
+      - mdb-net
+    ports:
+      - "8081:8081"
+    image: "mongo-express:latest"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mdb
+volumes:
+  mdb-vol: 
+    name: mdb-vol
+    external: true
+networks: 
+  mdb-net: {}

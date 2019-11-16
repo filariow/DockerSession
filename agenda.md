@@ -66,11 +66,19 @@
 
 
 9.  If we have more time :clock830:
-       1.  Docker Compose
+       1.  Docker Compose `[5 min]`
 
        2.  CI/CD with Azure Pipelines: `[30 min]`
-            - Build and deploy on a Container Registry (Azure CR or DockerHub)
-            - Publish from Container Registry to a web site
+            -  Azure Portal
+               -  Create a Resourse Group (RG)
+               -  Create an Azure Container Registry (ACR)
+            -  Azure DevOps
+               -  Create a Project
+               -  Create a Build Pipeline
+               -  Trigger a Build Pipeline
+            -  Publish from Container Registry to a web site
+               -  Azure Portal: Create a new `Web App for Containers`
+               -  Azure Devops: Create a Release Pipeline
 
 
 ## Useful links 
@@ -175,7 +183,7 @@
 
 - Create a network
     ```bash
-    docker network create mongo-net
+    docker network create mdb-net
     ```
 - Mongo DB
     ```bash
@@ -183,7 +191,7 @@
     docker run \
         --detach \
         --rm \
-        --network mongo-net \
+        --network mdb-net \
         --name mdb \
         --publish 27017:27017 \
         --hostname mdb \
@@ -197,7 +205,7 @@
     docker run \
         --detach \
         --rm \
-        --network mongo-net \
+        --network mdb-net \
         --name mdb-exp \
         --env ME_CONFIG_MONGODB_SERVER=mdb \
         --publish 8081:8081 \
@@ -232,7 +240,7 @@
     docker run \
         --detach \
         --rm \
-        --network mongo-net \
+        --network mdb-net \
         --name mdb \
         --publish 27017:27017 \
         --hostname mdb \
@@ -259,7 +267,7 @@
     docker run \
         --detach \
         --rm \
-        --network mongo-net \
+        --network mdb-net \
         --name mdb \
         --publish 27017:27017 \
         --hostname mdb \
@@ -429,9 +437,48 @@ Display data through `mongo-express` opening the database `samples` and the coll
         --name go-hello-world \
         [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
     ```
+
     > If caching prevent you from downloading the new one, try deleting the cached image with
     >
     > `docker rmi [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest`
 
 
 ### Docker Compose
+
+#### Intro
+
+Compose is a tool for defining and running multi-container Docker applications. 
+With Compose, you use a YAML file to configure your application’s services.
+Then, with a single command, you create and start all the services from your configuration.
+To learn more about all the features of Compose, see the list of features.
+
+Using Compose is basically a three-step process:
+
+1. Define your app’s environment with a Dockerfile so it can be reproduced anywhere.
+
+2. Define the services that make up your app in docker-compose.yml so they can be run together in an isolated environment.
+
+3. Run docker-compose up and Compose starts and runs your entire app.
+
+
+#### Set up our Mongo-Express and Mongo with volume environment
+
+1. Let inspect the file `mongo/compose/docker-compose.yaml`
+    - it declares two services 
+        - `mdb`
+        - `mdb-exp`
+    - a volume `mdb-vol`
+    - a network `mdb-net`
+  
+2. Using Docker Compose we can declare multi containers setups in a single turn.
+
+3. Open a shell and change working directory to `mongo/compose` the run docker compose
+
+    ```bash
+    docker-compose up # use the "-d / --detached" parameter to launch in detached mode
+    ```
+
+#### Useful links
+
+- [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
+- [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
