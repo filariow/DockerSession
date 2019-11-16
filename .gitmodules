@@ -1,3 +1,6 @@
 [submodule "dotnet"]
 	path = dotnet
 	url = https://github.com/FrancescoIlario/BooksApp.git
+[submodule "go"]
+	path = go
+	url = https://github.com/FrancescoIlario/go-hello-world-web-app.git
