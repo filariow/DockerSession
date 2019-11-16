@@ -30,13 +30,13 @@
     - cli commands: pull, run, stop, rm, rmi, push, ps, logs, inspect (jsonpath), exec, container cp
     - container default naming convention and generation
 
-6. Practice `[1 hour]`
+6. Demo `[30 min]`
     - Run Helloworld `[5 min]`
         - Inspecting Dockerfile (Simple Dockerfile)
     - Run ASP.NET Core 3 hello-world `[5 min]`
         - Port binding
         - Inspecting ASP.NET Core 3 hello-world Dockerfile (Multistage Dockerfile)
-    - Run Mongo DB `[10 min]`
+    - Run Mongo DB `[20 min]`
         - Run Mongo DB (mongo)
         - Run mongoexpress
         - Create a volume
@@ -54,9 +54,14 @@
     -  Practice
       -  VS Code 2019 + Remote-Containers
       -  New ASP.NET app
-         -  
 
-8.  CI/CD with Azure Pipelines: `[20 min]`
+8. CI with GitHub and DockerHub: `[20 min]`
+    - Sign Up in Docker Hub and GitHub
+    - Push our first image to Docker Hub
+    - Link to Docker Hub repo to GitHub Repo
+      - Image autobuild on GitHub Trigger
+
+9.  CI/CD with Azure Pipelines: `[30 min]`
     - Build and deploy on a Container Registry (Azure CR or DockerHub)
     - Publish from Container Registry to a web site
 
@@ -89,6 +94,7 @@ docker run \
   --name aspnetcore_sample \
   mcr.microsoft.com/dotnet/core/samples:aspnetapp
 ```
+
 
 ### Mongo DB
 
@@ -264,7 +270,7 @@ dotnet new mvc -o BooksApp
 1. Quit the debugging session
 
 
-#### Developing in container
+#### Using Mongo from ASP.NET Web App
 
 1. Use git to clone the following repo and give a look to the history
     ```bash
@@ -274,3 +280,77 @@ dotnet new mvc -o BooksApp
 
 1. Open in VS Code, build container, and run the WebApp `F5`
 
+### Docker Hub
+
+#### Push a docker image to Docker Hub
+
+1. Register on [Docker Hub](https://hub.docker.com/)
+
+2. Open the [Docker Hub Repositories page](https://hub.docker.com/repositories) and create a new repository
+
+3. Set `go-hello-world` as name
+
+4. If you still have not a [GitHub account](https://github.com/join?source=header), it's time to create one!
+
+5. Fork the project [https://github.com/FrancescoIlario/go-hello-world-web-app.git](https://github.com/FrancescoIlario/go-hello-world-web-app.git) and clone
+
+    ```bash
+    git clone https://github.com/[YOUR_ACCOUNT_NAME]/go-hello-world-web-app.git
+    ```
+
+6. Change directory to the cloned project one
+    ```bash
+    cd go-hello-world-web-app
+    ```
+
+7.  Authenticate with docker hub and push the image to your repository
+    ```bash
+    docker login
+    docker push [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
+    ```
+
+8. Now you can download it from Docker Hub and run a container
+    ```bash
+    docker pull [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
+    docker run \
+        --rm \
+        -d \
+        -p 8080:8080 \
+        --name go-hello-world \
+        [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
+    ```
+9. Navigate to [localhost:8080](localhost:8080) to test the web app and finally stop the container via the following command. 
+   Thanks to "--rm" argument the container will be automagically deleted.
+
+    ```bash
+    docker stop go-hello-world
+    ```
+
+#### Set up autobuild (CI) from Github to Docker Hub
+
+1. Open the [Docker Hub Repositories page](https://hub.docker.com/repositories) and select the `go-hello-world` repository
+
+2. Select the `Builds` tab, then hit `Link to GitHub` and authorize `Docker Hub` to access your GitHub's repos.
+
+3. Select thie Organization and the `go-hello-world` repository, the `master` branch as `Source`, `latest` as `Docker Tag` and finally hit `Save`
+
+4. Open with code the cloned repo, do some changes to the `static/index.html` file, commit it and push.
+   A build will be scheduled, and your image will be updated!
+
+5. You can now pull the new image and run it!
+
+    ```bash
+    docker pull [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
+    docker run \
+        --rm \
+        -d \
+        -p 8080:8080 \
+        --name go-hello-world \
+        [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest
+    ```
+    > If caching prevent you from downloading the new one, try deleting the cached image with
+    >
+    > `docker rmi [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest`
+
+
+### Docker Compose
