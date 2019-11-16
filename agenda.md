@@ -73,7 +73,7 @@
 ### Hello-world
 
 ```bash
-docker run --detach helloworld
+docker run helloworld
 ```
 
 
@@ -81,6 +81,7 @@ docker run --detach helloworld
 
 ```bash
 docker pull mcr.microsoft.com/dotnet/core/samples:aspnetapp
+
 docker run \
   -it \
   --rm \
@@ -106,6 +107,7 @@ docker run \
         --network mongo-net \
         --name mdb \
         --publish 27017:27017 \
+        --hostname mdb \
         mongo:latest
 
     docker ps
@@ -153,6 +155,7 @@ docker run \
         --network mongo-net \
         --name mdb \
         --publish 27017:27017 \
+        --hostname mdb \
         --volume mdb-vol:/data/db \
         mongo:latest 
 
@@ -176,6 +179,7 @@ docker run \
         --network mongo-net \
         --name mdb \
         --publish 27017:27017 \
+        --hostname mdb \
         --volume mdb-vol:/data/db \
         mongo:latest 
     ```
@@ -188,7 +192,7 @@ docker run \
 Copy files into Mongo's container
 
 ```bash
-docker container cp ./mongo/data/books.json mdb:/mongo/data/books
+docker container cp ./mongo/data/profiles.json mdb:/mongo/data
 ```
 
 Open a shell in Mongo's container
@@ -199,11 +203,74 @@ docker exec -it mdb bash
 
 Import data
 ```bash
-mongoimport -h 0.0.0.0 --port 27017 --drop -c books --file=books.json
+mmongoimport --drop -c profiles --uri mongodb://0.0.0.0/samples profiles.json
 ```
 
 Display data through `mongo-express`
 
 
-#### Let's use this data
+### Develop in container
+
+#### Generate and run an ASP.NET Core MVC App
+
+1. Create a new ASP.NET Core app using the dotnet tools from `mcr.microsoft.com/dotnet/core/sdk`
+
+```bash
+mkdir dotnet
+
+docker run \
+    --rm \
+    -it \
+    --name dotnet-sdk \
+    --volume $(realpath .)/dotnet:/dotnet \
+    --publish 9001:80 \
+    mcr.microsoft.com/dotnet/core/sdk:latest \
+    bash
+
+# in another window we can inspect the mounted volumes
+docker inspect -f '{{ .Mounts }}' dotnet-sdk
+
+cd dotnet
+dotnet new mvc -o BooksApp
+```
+
+1. Open Visual Studio Code and open the `dotnet` folder (Ctrl+K, Ctrl+O)
+
+1. On Linux open a shell and fix files permissions:
+
+    ```bash
+    sudo chown $(id -un):$(id -un) -R ./dotnet
+    ```
+
+1. Press `F1` (or `Ctrl+Shift+P`), select `> Remote-Containers: Add Development Container Configuration Files...`, and finally select `C# (.NET Core Latest)`.
+
+1. Let inspect and customize the generated `devcontainer.json` and `Dockerfile` files
+   1. On Linux, uncomment `L22`: 
+        ```json
+        "runArgs": [ "-u", "vscode" ],
+        ```
+        > In a fresh terminal run `id` and if your `UID` or `GUID` 
+        > is different from `1000` update the Dockerfile `L13` and `L14`
+
+1. Press `F1` (or `Ctrl+Shift+P`), select `> Remote-Containers: Reopen in Container`, and wait for the container to be prepared
+
+1. Press `F1` (or `Ctrl+Shift+P`), select `> .NET: Generate Assets for Build and Debug`. 
+   It will create a new directory `.vscode` with some configuration files.
+   Inspect it if you want.
+
+1. Press `F5` to run the application: as usual a browser will be opened and the web app home page will be shown. 
+   In case it is request accept the risks from visiting a web page with a self-signed certificate.
+
+1. Quit the debugging session
+
+
+#### Developing in container
+
+1. Use git to clone the following repo and give a look to the history
+    ```bash
+    git clone https://github.com/FrancescoIlario/BooksApp.git
+    git log --oneline --graph --decorate --all
+    ```
+
+1. Open in VS Code, build container, and run the WebApp `F5`
 
