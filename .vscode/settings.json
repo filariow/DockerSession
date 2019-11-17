@@ -1,0 +1,27 @@
+{
+    "cSpell.words": [
+        "aspnetapp",
+        "aspnetcore",
+        "cgroups",
+        "chown",
+        "containerd",
+        "devcontainer",
+        "dockerhub",
+        "executables",
+        "gélinas",
+        "helloworld",
+        "istio",
+        "kubernetes",
+        "lifecycle",
+        "linkerd",
+        "mkdir",
+        "mongo",
+        "mongoimport",
+        "oneline",
+        "realpath",
+        "systemd",
+        "userspace",
+        "userspaces",
+        "webhooks"
+    ]
+}

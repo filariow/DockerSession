@@ -1,23 +1,59 @@
-# Docker
+# Containers with Docker  <!-- omit in toc --> 
 
-## Agenda
-0. Intro `[5 min]`
+- [Agenda](#agenda)
+- [Theory](#theory)
+  - [Containers](#containers)
+    - [Intro](#intro)
+    - [Pros](#pros)
+    - [Use Cases](#use-cases)
+    - [Details](#details)
+      - [Linux Container Project (LXC)](#linux-container-project-lxc)
+      - [History](#history)
+    - [References and useful links](#references-and-useful-links)
+  - [Docker](#docker)
+    - [How does Docker work?](#how-does-docker-work)
+    - [Advantages of Docker containers](#advantages-of-docker-containers)
+      - [Modularity](#modularity)
+      - [Layers and image version control](#layers-and-image-version-control)
+      - [Rollback](#rollback)
+      - [Rapid deployment](#rapid-deployment)
+      - [Limitations to using Docker](#limitations-to-using-docker)
+    - [References and useful links](#references-and-useful-links-1)
+  - [Docker Hub](#docker-hub)
+    - [References and useful links](#references-and-useful-links-2)
+- [Hands-On](#hands-on)
+  - [Hello-world](#hello-world)
+  - [Hello-world ASP.NET](#hello-world-aspnet)
+  - [Mongo DB](#mongo-db)
+    - [Starting and restarting container + volumes](#starting-and-restarting-container--volumes)
+    - [Initializing Mongo DB with data](#initializing-mongo-db-with-data)
+  - [Develop in container](#develop-in-container)
+    - [Generate and run an ASP.NET Core MVC App](#generate-and-run-an-aspnet-core-mvc-app)
+    - [Using Mongo from ASP.NET Web App](#using-mongo-from-aspnet-web-app)
+  - [Docker Hub](#docker-hub-1)
+    - [Push a docker image to Docker Hub](#push-a-docker-image-to-docker-hub)
+    - [Set up auto-build (CI) from Github to Docker Hub](#set-up-auto-build-ci-from-github-to-docker-hub)
+  - [Docker Compose](#docker-compose)
+    - [Intro](#intro-1)
+    - [Set up our Mongo-Express and Mongo with volume environment](#set-up-our-mongo-express-and-mongo-with-volume-environment)
+    - [Useful links](#useful-links)
 
-1. Install Docker `[2 min]`
+# Agenda
+1. Intro `[5 min]`
+
+2. Install Docker `[2 min]`
     - Docker Engine (Linux)
     - Docker Desktop (Windows and Mac OSX: 10-20 min + restart. Do it before attending the event, please)
 
-2. Containers `[5 min]`
+3. Containers `[10 min]`
 
-3. What is Docker and reasons why it is so important `[5 min]`
-    - It works on my machine (then we'll ship your machine)
-    - Virtual Machines
+4. What is Docker `[10 min]`
 
-4. Docker Hub `[5 min]`
+5. Docker Hub `[5 min]`
     - What is it? -> Container Registry
     - Why do we need it?
 
-5. Fundamentals `[20 min]`
+6. Fundamentals `[20 min]`
     - Images
         - Dockerfile (simple and multistage)
     - Containers
@@ -29,27 +65,27 @@
     - cli commands: pull, run, stop, restart, rm, rmi, push, ps, logs, inspect, exec, container cp
     - container default naming convention and generation
 
-6. Demo `[50 min]`
-    - Run Helloworld `[5 min]`
+7. Hands-On `[50 min]`
+    - Run Hello World `[5 min]`
         - Inspecting Dockerfile (Simple Dockerfile)
     - Run ASP.NET Core 3 hello-world `[25 min]`
         - Arguments: 
           - cli: pull, run, stop, rm, ps
           - Dockerfile: Multistage Dockerfile
           - Docker Hub: Microsoft .NET Core repo
-        - Practice: start, stop, remove, and autoremove containers
+        - Practice: start, stop, remove, and auto-remove containers
     - Run Mongo DB `[20 min]`
         - Run Mongo DB (mongo)
-        - Run mongoexpress and play with the database
+        - Run Mongo Express and play with the database
         - Restart the Mongo DB container and lose all the data
         - Create a volume and inspect it
         - Run Mongo DB and store db data on created volume
         - Import data in mongo
           - copy files in mongo container (docker container cp)
           - open a bash shell in mongo container and run commands
-            - import dataset
+            - import data-set
 
-7.  Develop in containers (vscode) `[10 min]`
+8.  Develop in containers (vscode) `[10 min]`
     -  Intro
       -  Why is it so important?
          -  It works on my machine
@@ -58,18 +94,18 @@
       -  VS Code 2019 + Remote-Containers
       -  New ASP.NET app
 
-8.  CI with GitHub and DockerHub: `[20 min]`
+9.  CI with GitHub and DockerHub: `[20 min]`
     - Sign Up in Docker Hub and GitHub
     - Push our first image to Docker Hub
     - Link to Docker Hub repo to GitHub Repo
-      - Image autobuild on GitHub Trigger
+      - Image auto-build on GitHub Trigger
 
-9.  Docker Compose `[5 min]`
+10. Docker Compose `[5 min]`
 
-10. If we have more time :clock830:
+11. If we have more time :clock830:
        1.  CI/CD with Azure Pipelines: `[30 min]`
             -  Azure Portal
-               -  Create a Resourse Group (RG)
+               -  Create a Resource Group (RG)
                -  Create an Azure Container Registry (ACR)
             -  Azure DevOps
                -  Create a Project
@@ -79,7 +115,7 @@
                -  Azure Portal: Create a new `Web App for Containers`
                -  Azure DevOps: Create a Release Pipeline
 
-11. To be continued:
+12. To be continued:
     1.  Container Orchestrators:
         - Docker Swarm
         - Kubernetes
@@ -89,17 +125,181 @@
         - Linkerd
 
 
-## Useful links 
+## Useful links  <!-- omit in toc --> 
 
 - [Docker in Action](https://www.manning.com/books/docker-in-action)
 - [https://docs.docker.com](https://docs.docker.com)
 - [https://docs.docker.com/engine/](https://docs.docker.com/engine/)
 - [https://labs.play-with-docker.com](https://labs.play-with-docker.com)
 
+# Theory
 
-## Demo
+## Containers
 
-### Hello-world
+### Intro 
+
+A Linux® container is a set of one or more processes that are isolated from the rest of the system. 
+All the files necessary to run them are provided from a distinct image, meaning that Linux containers are portable and consistent as they move from development, to testing, and finally to production. 
+
+When we talk about containers we are not talking about virtualization.
+Indeed, *Virtualization* lets your operating systems run simultaneously on a single hardware system, meanwhile *containers* share the same operating system kernel and isolate the application processes from the rest of the system. 
+For example: ARM Linux systems run ARM Linux containers, x86 Linux systems run x86 Linux containers, x86 Windows systems run x86 Windows containers.
+Linux containers are extremely portable, but they must be compatible with the underlying system.
+
+![image](https://www.redhat.com/cms/managed-files/virtualization-vs-containers.png)
+
+### Pros
+
+- **Lightweight**: Containers are very small with respect to  other virtualization technologies, like virtual machines, because they do not include OS images.
+- **Increased portability**: Containerized applications can be easily deployed to multiple different Operating Systems and hardware platforms, avoiding in this way the common "it works on my machine!" scenario.
+- **More consistent operation**: DevOps teams know applications in containers will run the same, regardless of where they are deployed.
+- **Greater efficiency**: Containers allow applications to be more rapidly deployed, patched, or scaled.
+- **Better application development**: Containers support agile and DevOps efforts to accelerate development, test, and production cycles.
+
+
+### Use Cases
+
+- **Development environment**: Containers permits to create for project development environment that can be shared among developers.
+- **Microservices architectures**: Distributed applications and microservices can be more easily isolated, deployed, and scaled using individual container building blocks.
+- **Programs Incompatibility**: Easily use incompatible programs -or version of one program- on the same machine isolating the programs in containers.
+- **High scalability requirement scenarios**: Scalability is one of the greatest benefits of containers.
+    With proper orchestration, containers are a great solution that allows you to rapidly scale to meet your customers’ needs while avoiding excess infrastructure in quiet times.
+- **Portability requirement scenarios**: Containerized applications can be deployed on whichever cloud vendors you need to deploy to.
+- **Simple installation of complex program**: Complex program can be containerized avoiding the Operators to fight against strange installation/configuration problems that may appear in non-isolated scenarios.
+
+### Details
+
+#### Linux Container Project (LXC)
+
+The [Linux Containers project (LXC)](https://linuxcontainers.org/) is an open source container platform that provides a set of tools, templates, libraries, and language bindings.
+LXC has a simple command line interface that improves the user experience when starting containers.
+
+LXC offers an operating-system level virtualization environment that is available to be installed on many Linux-based systems.
+Your Linux distribution may have it available through its package repository.
+
+#### History
+
+The idea of what we now call container technology first appeared in 2000 as [FreeBSD jails](https://www.freebsd.org/doc/handbook/jails.html), a technology that allows the partitioning of a [FreeBSD](https://www.freebsd.org/) system into multiple subsystems, or jails.
+Jails were developed as safe environments that a system administrator could share with multiple users inside or outside of an organization.
+
+In 2001, an implementation of an isolated environment made its way into Linux, by way of Jacques Gélinas’ [VServer project](http://linux-vserver.org/Welcome_to_Linux-VServer.org).
+Once this foundation was set for multiple controlled userspaces in Linux, pieces began to fall into place to form what is today’s Linux container.
+
+Very quickly, more technologies combined to make this isolated approach a reality.
+Control groups ([cgroups](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/ch01.html)) is a kernel feature that controls and limits resource usage for a process or groups of processes.
+And [systemd](https://www.freedesktop.org/wiki/Software/systemd/), an initialization system that sets up the userspace and manages their processes, is used by cgroups to provide greater control over these isolated processes.
+Both of these technologies, while adding overall control for Linux, were the framework for how environments could be successful in staying separated.
+
+In 2008, Docker came onto the scene ([by way of dotCloud](https://blog.docker.com/2013/10/dotcloud-is-becoming-docker-inc/)) with their eponymous container technology. 
+The docker technology added a lot of new concepts and tools—a simple command line interface for running and building new layered images, a server daemon, a library of pre-built container images, and the concept of a registry server.
+Combined, these technologies allowed users to quickly build new layered containers and easily share them with others.
+
+### References and useful links
+
+- [https://www.cncf.io/](https://www.cncf.io/)
+- [https://www.netapp.com/us/info/what-are-containers.aspx](https://www.netapp.com/us/info/what-are-containers.aspx)
+- [https://www.opencontainers.org/](https://www.opencontainers.org/)
+- [https://linuxcontainers.org/](https://linuxcontainers.org/)
+- [https://www.freebsd.org/doc/handbook/jails.html](https://www.freebsd.org/doc/handbook/jails.html)
+
+
+## Docker
+
+The word "DOCKER" refers to several things.
+
+1. The IT software "Docker” is containerization technology that enables the creation and use of Linux® containers.
+2. The [open source Docker community](https://forums.docker.com/) works to improve these technologies to benefit all users—freely.
+3. The company, [Docker Inc.](https://www.docker.com/), builds on the work of the Docker community, makes it more secure, and shares those advancements back to the greater community. It then supports the improved and hardened technologies for enterprise customers.
+
+### How does Docker work?
+
+The Docker technology uses the Linux kernel and features of the kernel, like [cgroups](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/ch01.html) and namespaces, to segregate processes so they can run independently.
+
+Docker technology was initially built on top of the LXC technology—what most people associate with "traditional” Linux containers—though it’s since moved away from that dependency.
+Now Docker is based on their [containerd](https://github.com/containerd/containerd) project.
+
+containerd is an industry-standard container runtime with an emphasis on simplicity, robustness and portability. It is available as a daemon for Linux and Windows, which can manage the complete container lifecycle of its host system: image transfer and storage, container execution and supervision, low-level storage and network attachments, etc.
+
+The Docker technology brings more than the ability to run containers—it also eases the process of creating and building containers, shipping images, and versioning of images (among other things).
+
+![image](https://www.redhat.com/cms/managed-files/traditional-linux-containers-vs-docker_0.png)
+
+Traditional Linux containers use an init system that can manage multiple processes.
+This means entire applications can run as one.
+The Docker technology encourages applications to be broken down into their separate processes and provides the tools to do that.
+
+### Advantages of Docker containers
+
+#### Modularity
+
+The Docker approach to containerization is focused on the ability to take down a part of an application, to update or repair, without unnecessarily taking down the whole app. 
+In addition to this microservices-based approach, you can share processes amongst multiple apps in much the same way that service-oriented architecture (SOA) works.
+
+#### Layers and image version control
+
+Each Docker image file is made up of a series of layers.
+These layers are combined into a single image.
+A layer is created when the image changes.
+Every time a user specifies a command, such as run or copy, a new layer gets created.
+
+Docker reuses these layers for new container builds, which makes the build process much faster.
+Intermediate changes are shared between images, further improving speed, size, and efficiency.
+Inherent to layering is version control.
+Every time there’s a new change, you essentially have a built-in changelog—full control over your container images.
+
+#### Rollback
+
+Perhaps the best part about layering is the ability to roll back.
+Every image has layers.
+Don’t like the current iteration of an image?
+Roll it back to the previous version.
+This supports an agile development approach and helps make continuous integration and deployment (CI/CD) a reality from a tools perspective.
+
+#### Rapid deployment
+
+Docker-based containers can reduce deployment to seconds.
+By creating a container for each process, you can quickly share those similar processes with new apps.
+And, since an OS doesn’t need to boot to add or move a container, deployment times are substantially shorter.
+On top of this, with the speed of deployment, you can easily and cost-effectively create and destroy data created by your containers without concern.
+
+So, Docker technology is a more granular, controllable, microservices-based approach that places greater value on efficiency.
+
+#### Limitations to using Docker
+
+Docker, by itself, is very good at managing single containers. 
+When you start using more and more containers and containerized apps, broken down into hundreds of pieces, management and orchestration can get very difficult.
+Eventually, you need to take a step back and group containers to deliver services—networking, security, telemetry, etc.— across all of your containers.
+That's where **Kubernetes** comes in.
+
+### References and useful links
+
+- [https://www.redhat.com/en/topics/containers/what-is-docker](https://www.redhat.com/en/topics/containers/what-is-docker)
+- [https://www.docker.com/](https://www.docker.com/)
+- [https://containerd.io/](https://containerd.io/)
+
+
+## Docker Hub
+
+[Docker Hub](https://hub.docker.com/) is a service provided by Docker for finding and sharing container images with your team.
+It provides the following major features:
+
+- Repositories: Push and pull container images.
+- Teams & Organizations: Manage access to private repositories of container images.
+- Official Images: Pull and use high-quality container images provided by Docker.
+- Publisher Images: Pull and use high- quality container images provided by external vendors. Certified images also include support and guarantee compatibility with Docker Enterprise.
+- Builds: Automatically build container images from GitHub and Bitbucket and push them to Docker Hub.
+- Webhooks: Trigger actions after a successful push to a repository to integrate Docker Hub with other services.
+
+### References and useful links
+
+- [https://hub.docker.com/](https://hub.docker.com/)
+- [https://docs.docker.com/docker-hub/](https://docs.docker.com/docker-hub/)
+- [https://www.docker.com/products/docker-hub](https://www.docker.com/products/docker-hub)
+
+
+# Hands-On
+
+## Hello-world
 
 1. Run your first container 
 
@@ -108,7 +308,7 @@
     ```
 
 
-### Hello-world ASP.NET
+## Hello-world ASP.NET
 
 1. Let look at [Microsoft .NET Core Samples on DockerHub](https://hub.docker.com/_/microsoft-dotnet-core-samples/)
 
@@ -185,9 +385,9 @@
     </p>
     </details>  
 
-### Mongo DB
+## Mongo DB
 
-#### Starting and restarting container + volumes
+### Starting and restarting container + volumes
 
 - Create a network
     ```bash
@@ -289,7 +489,7 @@
     Visit [http://localhost:8081](http://localhost:8081) (mongo-express) dashboard and you will find the database "mdb-vol".
     
 
-#### Initializing Mongo DB with data
+### Initializing Mongo DB with data
 
 Copy files into Mongo's container
 
@@ -311,9 +511,9 @@ mongoimport --drop -c products --uri mongodb://localhost/samples products.json
 Display data through `mongo-express` opening the database `samples` and the collection `products`
 
 
-### Develop in container
+## Develop in container
 
-#### Generate and run an ASP.NET Core MVC App
+### Generate and run an ASP.NET Core MVC App
 
 1. Create a new ASP.NET Core app using the dotnet tools from `mcr.microsoft.com/dotnet/core/sdk`
 
@@ -367,7 +567,7 @@ Display data through `mongo-express` opening the database `samples` and the coll
 5. Quit the debugging session
 
 
-#### Using Mongo from ASP.NET Web App
+### Using Mongo from ASP.NET Web App
 
 1. Use git to clone the following repo and give a look to the history
     ```bash
@@ -377,9 +577,9 @@ Display data through `mongo-express` opening the database `samples` and the coll
 
 1. Open in VS Code, build container, and run the WebApp `F5`
 
-### Docker Hub
+## Docker Hub
 
-#### Push a docker image to Docker Hub
+### Push a docker image to Docker Hub
 
 1. Register on [Docker Hub](https://hub.docker.com/)
 
@@ -423,13 +623,13 @@ Display data through `mongo-express` opening the database `samples` and the coll
     docker stop go-hello-world
     ```
 
-#### Set up autobuild (CI) from Github to Docker Hub
+### Set up auto-build (CI) from Github to Docker Hub
 
 1. Open the [Docker Hub Repositories page](https://hub.docker.com/repositories) and select the `go-hello-world` repository
 
 2. Select the `Builds` tab, then hit `Link to GitHub` and authorize `Docker Hub` to access your GitHub's repos.
 
-3. Select thie Organization and the `go-hello-world` repository, the `master` branch as `Source`, `latest` as `Docker Tag` and finally hit `Save`
+3. Select this Organization and the `go-hello-world` repository, the `master` branch as `Source`, `latest` as `Docker Tag` and finally hit `Save`
 
 4. Open with code the cloned repo, do some changes to the `static/index.html` file, commit it and push.
    A build will be scheduled, and your image will be updated!
@@ -451,9 +651,9 @@ Display data through `mongo-express` opening the database `samples` and the coll
     > `docker rmi [YOUR_DOCKERHUB_ACCOUNT]/go-hello-world:latest`
 
 
-### Docker Compose
+## Docker Compose
 
-#### Intro
+### Intro
 
 Compose is a tool for defining and running multi-container Docker applications. 
 With Compose, you use a YAML file to configure your application’s services.
@@ -469,7 +669,7 @@ Using Compose is basically a three-step process:
 3. Run docker-compose up and Compose starts and runs your entire app.
 
 
-#### Set up our Mongo-Express and Mongo with volume environment
+### Set up our Mongo-Express and Mongo with volume environment
 
 1. Let inspect the file `mongo/compose/docker-compose.yaml`
     - it declares two services 
@@ -486,7 +686,7 @@ Using Compose is basically a three-step process:
     docker-compose up # use the "-d / --detached" parameter to launch in detached mode
     ```
 
-#### Useful links
+### Useful links
 
 - [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
 - [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
