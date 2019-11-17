@@ -21,6 +21,8 @@
     - [References and useful links](#references-and-useful-links-1)
   - [Docker Hub](#docker-hub)
     - [References and useful links](#references-and-useful-links-2)
+- [Fundamentals](#fundamentals)
+  - [Images](#images)
 - [Hands-On](#hands-on)
   - [Hello-world](#hello-world)
   - [Hello-world ASP.NET](#hello-world-aspnet)
@@ -50,8 +52,6 @@
 4. What is Docker `[10 min]`
 
 5. Docker Hub `[5 min]`
-    - What is it? -> Container Registry
-    - Why do we need it?
 
 6. Fundamentals `[20 min]`
     - Images
@@ -295,6 +295,15 @@ It provides the following major features:
 - [https://hub.docker.com/](https://hub.docker.com/)
 - [https://docs.docker.com/docker-hub/](https://docs.docker.com/docker-hub/)
 - [https://www.docker.com/products/docker-hub](https://www.docker.com/products/docker-hub)
+
+
+# Fundamentals
+
+## Images
+
+Docker images are build starting from a `Dockerfile`.
+Dockerfiles are simple text files with a list of subsequent commands.
+
 
 
 # Hands-On

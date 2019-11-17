@@ -6,6 +6,7 @@
         "chown",
         "containerd",
         "devcontainer",
+        "dockerfiles",
         "dockerhub",
         "executables",
         "gélinas",
