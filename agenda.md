@@ -64,11 +64,10 @@
     - Link to Docker Hub repo to GitHub Repo
       - Image autobuild on GitHub Trigger
 
+9.  Docker Compose `[5 min]`
 
-9.  If we have more time :clock830:
-       1.  Docker Compose `[5 min]`
-
-       2.  CI/CD with Azure Pipelines: `[30 min]`
+10. If we have more time :clock830:
+       1.  CI/CD with Azure Pipelines: `[30 min]`
             -  Azure Portal
                -  Create a Resourse Group (RG)
                -  Create an Azure Container Registry (ACR)
@@ -78,7 +77,16 @@
                -  Trigger a Build Pipeline
             -  Publish from Container Registry to a web site
                -  Azure Portal: Create a new `Web App for Containers`
-               -  Azure Devops: Create a Release Pipeline
+               -  Azure DevOps: Create a Release Pipeline
+
+11. To be continued:
+    1.  Container Orchestrators:
+        - Docker Swarm
+        - Kubernetes
+    
+    2. Service Meshes
+        - Istio
+        - Linkerd
 
 
 ## Useful links 
