@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
+        "agnesi",
+        "aspnet",
         "aspnetapp",
         "aspnetcore",
         "cgroups",
@@ -19,12 +21,15 @@
         "mfhwc",
         "mkdir",
         "mongo",
+        "mongo's",
         "mongoimport",
         "oneline",
         "realpath",
         "systemd",
+        "tmpfs",
         "userspace",
         "userspaces",
+        "varname",
         "webhooks",
         "workdir"
     ]
