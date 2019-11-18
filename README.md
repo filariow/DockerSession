@@ -48,6 +48,13 @@
     - [cli](#cli-1)
     - [Useful links and references](#useful-links-and-references)
   - [Network](#network)
+    - [Network drivers](#network-drivers)
+    - [Bridge](#bridge)
+    - [Host](#host)
+    - [Overlay](#overlay)
+    - [Macvlan](#macvlan)
+    - [None](#none)
+    - [Network driver summary](#network-driver-summary)
 - [Hands-On](#hands-on)
   - [Docker Hello-world](#docker-hello-world)
   - [Your first helloworld](#your-first-helloworld)
@@ -588,6 +595,47 @@ docker volume prune                     # To remove all unused volumes and free 
 
 
 ## Network
+
+One of the reasons Docker containers and services are so powerful is that you can connect them together, or connect them to non-Docker workloads.
+Docker containers and services do not even need to be aware that they are deployed on Docker, or whether their peers are also Docker workloads or not.
+
+### Network drivers
+Docker’s networking subsystem is pluggable, using drivers.
+Several drivers exist by default, and provide core networking functionality.
+
+### Bridge
+It is the default network driver. 
+Bridge networks are usually used when your applications run in standalone containers that need to communicate.
+
+In terms of Docker, a bridge network uses a software bridge which allows containers connected to the same bridge network to communicate, while providing isolation from containers which are not connected to that bridge network.
+The Docker bridge driver automatically installs rules in the host machine so that containers on different bridge networks cannot communicate directly with each other.
+
+
+### Host
+For standalone containers, remove network isolation between the container and the Docker host, and use the host’s networking directly.
+
+### Overlay
+Overlay networks connect multiple Docker daemons together and enable swarm services to communicate with each other.
+
+### Macvlan
+Macvlan networks allow you to assign a MAC address to a container, making it appear as a physical device on your network.
+
+### None
+ For this container, disable all networking. Usually used in conjunction with a custom network driver.
+
+### Network driver summary
+
+- User-defined `bridge networks` are best when you need multiple containers to communicate on the same Docker host.
+    
+- `Host networks` are best when the network stack should not be isolated from the Docker host, but you want other aspects of the container to be isolated.
+
+- `Overlay networks` are best when you need containers running on different Docker hosts to communicate, or when multiple applications work together using swarm services.
+
+- `Macvlan networks` are best when you are migrating from a VM setup or need your containers to look like physical hosts on your network, each with a unique MAC address.
+
+- `Third-party network` plugins allow you to integrate Docker with specialized network stacks.
+
+
 - cli: network: connect, create, disconnect, inspect, ls, prune, rm
 
 # Hands-On
