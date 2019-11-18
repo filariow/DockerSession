@@ -6,6 +6,7 @@
     - [Intro](#intro)
     - [Pros](#pros)
     - [Use Cases](#use-cases)
+    - [Containers Vs Virtual Machine](#containers-vs-virtual-machine)
     - [Details](#details)
       - [Linux Container Project (LXC)](#linux-container-project-lxc)
       - [History](#history)
@@ -36,7 +37,17 @@
     - [ENTRYPOINT](#entrypoint)
     - [Understand how CMD and ENTRYPOINT interact](#understand-how-cmd-and-entrypoint-interact)
     - [\# comment](#-comment)
-  - [Useful Links and references](#useful-links-and-references)
+    - [Useful Links and references](#useful-links-and-references)
+  - [Containers](#containers-1)
+    - [cli](#cli)
+    - [Useful Links and references](#useful-links-and-references-1)
+  - [Storage](#storage)
+    - [Volumes](#volumes)
+    - [Bind mounts](#bind-mounts)
+    - [tmpfs](#tmpfs)
+    - [cli](#cli-1)
+    - [Useful links and references](#useful-links-and-references)
+  - [Network](#network)
 - [Hands-On](#hands-on)
   - [Docker Hello-world](#docker-hello-world)
   - [Your first helloworld](#your-first-helloworld)
@@ -71,14 +82,18 @@
 6. Fundamentals `[20 min]`
     - Images
         - Dockerfile (simple and multistage)
+        - cli: pull, rmi, push, inspect
     - Containers
-        - creation speed
+        - instances created on an image specification
         - data deleted on container deletion
+        - default naming convention 
+        - cli: run, exec, stop, restart, rm, ps, logs, inspect
+          - container: commit, cp, diff, rename, top
     - Volumes
         - Mounting local directories with container
-    - Network (bridges)
-    - cli commands: pull, run, stop, restart, rm, rmi, push, ps, logs, inspect, exec, container cp
-    - container default naming convention and generation
+        - cli: volume: create,inspect, ls, prune, rm
+    - Network
+      - cli: network: connect, create, disconnect, inspect, ls, prune, rm
 
 7. Hands-On `[50 min]`
     - Run Hello World `[5 min]`
@@ -181,6 +196,11 @@ Linux containers are extremely portable, but they must be compatible with the un
     With proper orchestration, containers are a great solution that allows you to rapidly scale to meet your customers’ needs while avoiding excess infrastructure in quiet times.
 - **Portability requirement scenarios**: Containerized applications can be deployed on whichever cloud vendors you need to deploy to.
 - **Simple installation of complex program**: Complex program can be containerized avoiding the Operators to fight against strange installation/configuration problems that may appear in non-isolated scenarios.
+
+### Containers Vs Virtual Machine
+
+Containers and virtual machines have similar resource isolation and allocation benefits, but function differently because containers virtualize the operating system instead of hardware.
+Containers are more portable and efficient.
 
 ### Details
 
@@ -480,10 +500,95 @@ There are few rules that describe their co-operation.
 ```
 
 
-## Useful Links and references
+### Useful Links and references
 
 - [https://docs.docker.com/engine/reference/builder/](https://docs.docker.com/engine/reference/builder/)
 
+## Containers
+
+A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another. 
+A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.
+
+Container images become containers at runtime and in the case of Docker containers - images become containers when they run on Docker Engine.
+Available for both Linux and Windows-based applications, containerized software will always run the same, regardless of the infrastructure.
+Containers isolate software from its environment and ensure that it works uniformly despite differences for instance between development and staging.
+
+When you create a container an human-readable id is assigned or by you or by docker.
+In this second case, it will have the `ADJECTIVE_NOUN` form, like `happy_tharp`, `priceless_johnson`, `youthful_agnesi`.
+
+
+### cli
+
+```
+docker run [-it | -d] [--name <human-readable_name>] [(-p port)+] IMAGE [COMMAND] [ARG...]
+docker exec [-it] CONTAINER COMMAND [ARG...]
+docker restart CONTAINER [CONTAINER...]
+docker stop CONTAINER [CONTAINER...]
+docker rm CONTAINER [CONTAINER...]
+docker ps
+docker logs CONTAINER
+docker inspect NAME|ID [NAME|ID...]
+
+docker cp CONTAINER:SRC_PATH DEST_PATH|-
+docker cp SRC_PATH|- CONTAINER:DEST_PATH
+
+docker commit CONTAINER [REPOSITORY[:TAG]]
+docker diff CONTAINER 
+docker rename CONTAINER NEW_NAME
+docker top CONTAINER
+```
+
+### Useful Links and references
+
+- [https://www.docker.com/resources/what-container](https://www.docker.com/resources/what-container)
+- [https://docs.docker.com/engine/reference/commandline/](https://docs.docker.com/engine/reference/commandline/)
+
+
+## Storage
+Whenever a container is restarted the data stored in it will be lost.
+To store persist date, it is necessary to write out of the container.
+
+Docker has two options for containers to store files in the host machine, so that the files are persisted even after the container stops: `volumes`, and `bind mounts`.
+If you’re running Docker on Linux you can also use a `tmpfs` mount.
+If you’re running Docker on Windows you can also use a named pipe.
+
+![image](https://docs.docker.com/storage/images/types-of-mounts.png)
+
+
+### Volumes
+
+Volumes are stored in a part of the host filesystem which is *managed* by Docker (`/var/lib/docker/volumes/` on Linux).
+Non-Docker processes should not modify this part of the filesystem.
+Volumes are the best way to persist data in Docker.
+
+
+### Bind mounts 
+
+`Bind mounts` may be stored anywhere on the host system.
+They may even be important system files or directories.
+Non-Docker processes on the Docker host or a Docker container can modify them at any time.
+
+
+### tmpfs 
+`tmpfs` mounts are stored in the host system’s memory only, and are never written to the host system’s filesystem.
+
+
+### cli
+```bash
+docker volume create <volume-name>      # To create a new volume
+docker volume ls                        # To list all volumes
+docker volume inspect <volume-name>     # To inspect a volume
+docker volume rm <volume-name>          # To delete a volume
+docker volume prune                     # To remove all unused volumes and free up space
+```
+
+### Useful links and references
+
+- [https://docs.docker.com/storage/](https://docs.docker.com/storage/)
+
+
+## Network
+- cli: network: connect, create, disconnect, inspect, ls, prune, rm
 
 # Hands-On
 
