@@ -8,6 +8,7 @@
         "devcontainer",
         "dockerfiles",
         "dockerhub",
+        "entrypoint",
         "executables",
         "gélinas",
         "helloworld",
@@ -15,6 +16,7 @@
         "kubernetes",
         "lifecycle",
         "linkerd",
+        "mfhwc",
         "mkdir",
         "mongo",
         "mongoimport",
@@ -23,6 +25,7 @@
         "systemd",
         "userspace",
         "userspaces",
-        "webhooks"
+        "webhooks",
+        "workdir"
     ]
 }

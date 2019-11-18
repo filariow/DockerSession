@@ -23,8 +23,23 @@
     - [References and useful links](#references-and-useful-links-2)
 - [Fundamentals](#fundamentals)
   - [Images](#images)
+    - [FROM](#from)
+    - [ARG](#arg)
+    - [WORKDIR](#workdir)
+    - [COPY](#copy)
+    - [ADD](#add)
+      - [Differences with COPY](#differences-with-copy)
+    - [ENV](#env)
+    - [EXPOSE](#expose)
+    - [RUN](#run)
+    - [CMD](#cmd)
+    - [ENTRYPOINT](#entrypoint)
+    - [Understand how CMD and ENTRYPOINT interact](#understand-how-cmd-and-entrypoint-interact)
+    - [\# comment](#-comment)
+  - [Useful Links and references](#useful-links-and-references)
 - [Hands-On](#hands-on)
-  - [Hello-world](#hello-world)
+  - [Docker Hello-world](#docker-hello-world)
+  - [Your first helloworld](#your-first-helloworld)
   - [Hello-world ASP.NET](#hello-world-aspnet)
   - [Mongo DB](#mongo-db)
     - [Starting and restarting container + volumes](#starting-and-restarting-container--volumes)
@@ -304,17 +319,231 @@ It provides the following major features:
 Docker images are build starting from a `Dockerfile`.
 Dockerfiles are simple text files with a list of subsequent commands.
 
+Let's introduce some important keywords of Dockerfiles
+
+
+### FROM 
+
+```docker
+FROM <image>[:<tag>] [AS <name>]
+```
+
+
+### ARG
+
+```docker
+ARG <name>[=<default value>]
+```
+
+The ARG instruction defines a variable that users can pass at build-time to the builder with the docker build command using the `--build-arg <varname>=<value>` flag.
+
+> :warning: Warning:
+> It is not recommended to use build-time variables for passing secrets like github keys, user credentials etc. Build-time variable values are visible to any user of the image with the docker history command.
+
+ARG is the only instruction that may precede FROM in the Dockerfile.
+
+
+### WORKDIR
+
+```docker
+WORKDIR /path/to/workdir
+```
+
+The WORKDIR instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD instructions that follow it in the Dockerfile. 
+If the WORKDIR doesn’t exist, it will be created even if it’s not used in any subsequent Dockerfile instruction.
+
+
+### COPY
+
+```docker
+COPY [--chown=<user>:<group>] <src>... <dest>
+```
+
+The COPY instruction copies new files or directories from `<src>` and adds them to the filesystem of the container at the path `<dest>`.
+
+
+### ADD
+
+```docker
+ADD [--chown=<user>:<group>] <src>... <dest>
+```
+
+The ADD instruction copies new files, directories or remote file URLs from `<src>` and adds them to the filesystem of the image at the path `<dest>`.
+
+#### Differences with COPY
+
+COPY takes in a src and destination.
+It only lets you copy in a local file or directory from your host (the machine building the Docker image) into the Docker image itself.
+
+ADD lets you do that too, but it also supports 2 other sources.
+First, you can use a URL instead of a local file / directory. 
+Secondly, you can extract a tar file from the source directly into the destination.
+
+If you’re copying in local files to your Docker image, always use COPY because it’s more explicit.
+
+
+### ENV
+
+```docker
+ENV <key> <value>
+ENV <key>=<value> ...
+```
+
+The ENV instruction sets the environment variable `<key>` to the value `<value>`.
+This value will be in the environment for all subsequent instructions in the build stage and can be replaced inline in many as well.
+
+The environment variables set using ENV will persist when a container is run from the resulting image. 
+You can view the values using docker inspect, and change them using docker run `--env <key>=<value>`.
+
+
+### EXPOSE
+
+```docker
+EXPOSE <port> [<port>/<protocol>...]
+```
+
+The EXPOSE instruction informs Docker that the container listens on the specified network ports at runtime.
+You can specify whether the port listens on TCP or UDP, and the default is TCP if the protocol is not specified.
+
+The EXPOSE instruction does not actually publish the port. 
+It functions as a type of documentation between the person who builds the image and the person who runs the container, about which ports are intended to be published.
+
+To actually publish the port when running the container, use the -p flag on docker run to publish and map one or more ports, or the -P flag to publish all exposed ports and map them to high-order ports.
+
+### RUN
+
+```docker
+RUN <command> # (shell form, the command is run in a shell, which by default is /bin/sh -c on Linux or cmd /S /C on Windows)
+
+RUN ["executable", "param1", "param2"]  # (exec form)
+```
+
+The RUN instruction will execute any commands in a new layer on top of the current image and commit the results.
+The resulting committed image will be used for the next step in the Dockerfile.
+
+Layering RUN instructions and generating commits conforms to the core concepts of Docker where commits are cheap and containers can be created from any point in an image’s history, much like source control.
+
+The exec form makes it possible to avoid shell string munging, and to RUN commands using a base image that does not contain the specified shell executable.
+
+The default shell for the shell form can be changed using the SHELL command.
+
+In the *shell* form you can use a `\` (backslash) to continue a single RUN instruction onto the next line. 
+
+### CMD
+
+```docker
+CMD ["executable","param1","param2"] # (exec form, this is the preferred form)
+CMD ["param1","param2"] # (as default parameters to ENTRYPOINT)
+CMD command param1 param2 # (shell form)
+```
+
+There can only be one `CMD` instruction in a Dockerfile.
+If you list more than one `CMD` then only the last `CMD` will take effect.
+
+The main purpose of a `CMD` is to provide defaults for an executing container.
+
+
+### ENTRYPOINT
+
+```docker
+ENTRYPOINT ["executable", "param1", "param2"] # (exec form, preferred)
+ENTRYPOINT command param1 param2 (shell form)
+```
+
+An `ENTRYPOINT` allows you to configure a container that will run as an executable.
+
+Command line arguments to docker run `<image>` will be appended after all elements in an exec form `ENTRYPOINT`, and will override all elements specified using `CMD`.
+This allows arguments to be passed to the entry point, i.e., docker run `<image>` -d will pass the -d argument to the entry point.
+You can override the `ENTRYPOINT` instruction using the docker run `--entrypoint` flag.
+
+Only the last ENTRYPOINT instruction in the Dockerfile will have an effect.
+
+
+### Understand how CMD and ENTRYPOINT interact
+
+Both CMD and ENTRYPOINT instructions define what command gets executed when running a container.
+There are few rules that describe their co-operation.
+
+1. Dockerfile should specify at least one of CMD or ENTRYPOINT commands.
+
+2. ENTRYPOINT should be defined when using the container as an executable.
+
+3. CMD should be used as a way of defining default arguments for an ENTRYPOINT command or for executing an ad-hoc command in a container.
+
+4. CMD will be overridden when running the container with alternative arguments.
+
+
+### \# comment
+
+```docker
+# Use a # to add comments!
+```
+
+
+## Useful Links and references
+
+- [https://docs.docker.com/engine/reference/builder/](https://docs.docker.com/engine/reference/builder/)
 
 
 # Hands-On
 
-## Hello-world
+## Docker Hello-world
 
 1. Run your first container 
 
     ```bash
     docker run helloworld
     ```
+
+## Your first helloworld
+
+1. Open VS Code and open a new folder `mfhwc` 
+
+2. Create a `main.sh` file with the following content
+
+    ```bash
+    #!/bin/bash
+
+    echo "Hello World!"
+    ```
+
+3. Create a Dockerfile with the following requirements:
+   - uses the `ubuntu:latest` image
+   - works in the directory `/helloworld`
+   - uses the `bash` command to run the `main.sh` file
+
+    <br>
+    <details>
+    <summary>SOLUTION: Click to expand the solution</summary>   
+    <p>
+    
+    ```docker
+    FROM ubuntu:latest
+    WORKDIR /helloworld
+    COPY main.sh .
+    ENTRYPOINT ["bash", "./main.sh"]
+    ```
+    
+    </p>
+    </details>  
+
+4. Build the image and run it with respect to the following requirements
+   - the image must have the name `mfhwc`
+   - the image must have the tag `1.0` (it's stable!)
+   - the image must have the tag `latest`
+
+    <br>
+    <details>
+    <summary>SOLUTION: Click to expand the solution</summary>   
+    <p>
+    
+    ```bash
+    docker build -t mfhwc:1.0 -t mfhwc:latest .
+    docker run mfhwc # or mfhwc:latest or mfhwc:1.0
+    ```
+    
+    </p>
+    </details>  
 
 
 ## Hello-world ASP.NET
