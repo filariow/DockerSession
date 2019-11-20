@@ -1,9 +1,8 @@
 # Containers with Docker  <!-- omit in toc --> 
 
-```markdown
-To clone this repo with examples please use the `--recursive` git flag, 
-or -for each example you want to download- change directory to the example one and use `git submodule update`.
-```
+> To clone this repo with all the examples please use the `--recursive` git flag.
+> Otherwise, for each example you want to download change directory to the example one and use `git submodule update`.
+
 
 - [Agenda](#agenda)
 - [Theory](#theory)
